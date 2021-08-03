@@ -31,20 +31,28 @@ class RPSGame
     puts "#{human.name} chose #{human.move}"
     puts "#{computer.name} chose #{computer.move}"
 
-    case human.move
-    when 'rock'
-      puts "It's a tie!" if computer.move == 'rock'
-      puts "#{human.name} won!" if computer.move == 'scissors'
-      puts "#{computer.name} won!" if computer.move == 'paper'
-    when 'paper'
-      puts "It's a tie!" if computer.move == 'paper'
-      puts "#{human.name} won!" if computer.move == 'rock'
-      puts "#{computer.name} won!" if computer.move == 'scissors'
-    when 'scissors'
-      puts "It's a tie!" if computer.move == 'scissors'
-      puts "#{human.name} won!" if computer.move == 'paper'
-      puts "#{computer.name} won!" if computer.move == 'rock'
+    if human.move > computer.move
+      puts "#{human.name} won!"
+    elsif human.move < computer.move
+      puts "#{computer.name} won!"
+    else
+      puts "It's a tie!"
     end
+
+    # case human.move
+    # when 'rock'
+    #   puts "It's a tie!" if computer.move == 'rock'
+    #   puts "#{human.name} won!" if computer.move == 'scissors'
+    #   puts "#{computer.name} won!" if computer.move == 'paper'
+    # when 'paper'
+    #   puts "It's a tie!" if computer.move == 'paper'
+    #   puts "#{human.name} won!" if computer.move == 'rock'
+    #   puts "#{computer.name} won!" if computer.move == 'scissors'
+    # when 'scissors'
+    #   puts "It's a tie!" if computer.move == 'scissors'
+    #   puts "#{human.name} won!" if computer.move == 'paper'
+    #   puts "#{computer.name} won!" if computer.move == 'rock'
+    # end
   end
 
   def play_again?
@@ -88,11 +96,11 @@ class Human < Player
     loop do
       puts "Please choose rock, paper, or scissors:"
       choice = gets.chomp
-      break if %w(rock paper scissors).include?(choice)
+      break if Move::VALUES.include?(choice)
 
       puts "Sorry, invalid choice."
     end
-    self.move = choice
+    self.move = Move.new(choice)
   end
 end
 
@@ -102,14 +110,53 @@ class Computer < Player
   end
 
   def choose
-    self.move = %w(rock paper scissors).sample
+    self.move = Move.new(Move::VALUES.sample)
   end
 end
 
 class Move
-  def initialize
-    # seems like we need something to keep track
-    # of the choice... a move object can be "paper", "rock" or "scissors"
+  VALUES = %w(rock paper scissors)
+
+  def initialize(value)
+    @value = value
+  end
+
+  def to_s
+    @value
+  end
+
+  def >(other_move)
+    case
+    when rock?
+      other_move.scissors?
+    when paper?
+      other_move.rock?
+    when scissors?
+      other_move.paper?
+    end
+  end
+
+  def <(other_move)
+    case
+    when rock?
+      other_move.paper?
+    when paper?
+      other_move.scissors?
+    when scissors?
+      other_move.rock?
+    end
+  end
+
+  def rock?
+    @value == 'rock'
+  end
+
+  def paper?
+    @value == 'paper'
+  end
+
+  def scissors?
+    @value == 'scissors'
   end
 end
 
