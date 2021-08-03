@@ -12,6 +12,7 @@ class RPSGame
     loop do
       human.choose
       computer.choose
+      display_moves
       display_winner
       break unless play_again?
     end
@@ -28,9 +29,6 @@ class RPSGame
   end
 
   def display_winner
-    puts "#{human.name} chose #{human.move}"
-    puts "#{computer.name} chose #{computer.move}"
-
     if human.move > computer.move
       puts "#{human.name} won!"
     elsif human.move < computer.move
@@ -38,6 +36,11 @@ class RPSGame
     else
       puts "It's a tie!"
     end
+  end
+
+  def display_moves
+    puts "#{human.name} chose #{human.move}"
+    puts "#{computer.name} chose #{computer.move}"
   end
 
   def play_again?
