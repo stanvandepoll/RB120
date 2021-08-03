@@ -38,21 +38,6 @@ class RPSGame
     else
       puts "It's a tie!"
     end
-
-    # case human.move
-    # when 'rock'
-    #   puts "It's a tie!" if computer.move == 'rock'
-    #   puts "#{human.name} won!" if computer.move == 'scissors'
-    #   puts "#{computer.name} won!" if computer.move == 'paper'
-    # when 'paper'
-    #   puts "It's a tie!" if computer.move == 'paper'
-    #   puts "#{human.name} won!" if computer.move == 'rock'
-    #   puts "#{computer.name} won!" if computer.move == 'scissors'
-    # when 'scissors'
-    #   puts "It's a tie!" if computer.move == 'scissors'
-    #   puts "#{human.name} won!" if computer.move == 'paper'
-    #   puts "#{computer.name} won!" if computer.move == 'rock'
-    # end
   end
 
   def play_again?
@@ -126,23 +111,21 @@ class Move
   end
 
   def >(other_move)
-    case
-    when rock?
+    if rock?
       other_move.scissors?
-    when paper?
+    elsif paper?
       other_move.rock?
-    when scissors?
+    elsif scissors?
       other_move.paper?
     end
   end
 
   def <(other_move)
-    case
-    when rock?
+    if rock?
       other_move.paper?
-    when paper?
+    elsif paper?
       other_move.scissors?
-    when scissors?
+    elsif scissors?
       other_move.rock?
     end
   end
@@ -158,17 +141,6 @@ class Move
   def scissors?
     @value == 'scissors'
   end
-end
-
-class Rule
-  def initialize
-    # not sure what the "state" of a rule object should be
-  end
-end
-
-# not sure where "compare" goes yet
-def compare(move1, move2)
-
 end
 
 RPSGame.new.play
