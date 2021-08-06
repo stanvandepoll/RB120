@@ -112,7 +112,7 @@ class TTTGame
         current_player_moves
         switch_players
         break if someone_won? || board_full?
-        
+
         clear_screen_and_display_board if human_turn?
       end
       clear_screen_and_display_board
@@ -124,6 +124,8 @@ class TTTGame
     end
     display_goodbye_message
   end
+
+  private
 
   def current_player_moves
     if human_turn?
