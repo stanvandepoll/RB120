@@ -20,6 +20,10 @@ class Board
   def []=(integer, marker)
     @grid[integer].marker = marker
   end
+
+  def unmarked_keys
+    @grid.keys.select { |key| @grid[key].marker == INITIAL_MARKER }
+  end
 end
 
 class Square
@@ -57,11 +61,9 @@ class TTTGame
     loop do
       display_board
       human_moves
-      display_board
       # break if someone_won? || board_full?
 
       computer_moves
-      display_board
       # break if someone_won? || board_full?
       break
     end
@@ -70,11 +72,11 @@ class TTTGame
   end
 
   def human_moves
-    puts "Choose a square between 1-9: "
+    puts "Choose a square number (#{board.unmarked_keys.join(', ')})."
     square = nil
     loop do
       square = gets.chomp.to_i
-      break if (1..9).include?(square)
+      break if board.unmarked_keys.include?(square)
 
       puts "Sorry, that's not a valid choice."
     end
@@ -83,7 +85,7 @@ class TTTGame
   end
 
   def computer_moves
-    board[(1..9).to_a.sample] = computer.marker
+    board[board.unmarked_keys.sample] = computer.marker
   end
 
   def display_welcome_message
