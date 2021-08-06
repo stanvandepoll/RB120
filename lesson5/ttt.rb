@@ -16,49 +16,68 @@ class Board
   def [](integer)
     @grid[integer]
   end
+
+  def set_square_at(integer, marker)
+    @grid[integer].marker = marker
+  end
 end
 
 class Square
+  attr_accessor :marker
+
   def initialize(initial_marker)
-    @state = initial_marker
+    @marker = initial_marker
   end
 
   def to_s
-    @state
+    @marker
   end
 end
 
 class Player
+  attr_reader :marker
+
   def initialize(name, marker, type = :computer)
     @name = name
     @type = type
     @marker = marker
   end
-
-  def mark
-
-  end
 end
 
 class TTTGame
-  attr_reader :board
+  attr_reader :board, :human, :computer
 
   def initialize
     @board = Board.new
+    @human = Player.new('Stan', 'X', :player)
+    @computer = Player.new('Steve-O', 'O')
   end
 
   def play
     display_welcome_message
     loop do
       display_board
-      first_player_moves
+      human_moves
       break if someone_won? || board_full?
 
-      second_player_moves
+      computer_moves
       break if someone_won? || board_full?
     end
     display_result
     display_goodbye_message
+  end
+
+  def human_moves
+    puts "Choose a square between 1-9: "
+    square = nil
+    loop do
+      square = gets.chomp.to_i
+      break if (1..9).include?(square)
+
+      puts "Sorry, that's not a valid choice."
+    end
+
+    board.set_square_at(square, human.marker)
   end
 
   def display_welcome_message
