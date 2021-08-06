@@ -1,4 +1,6 @@
 class Board
+  INITIAL_MARKER = ' '
+
   def initialize
     @grid = initialize_grid
   end
@@ -6,7 +8,7 @@ class Board
   def initialize_grid
     fresh_grid = {}
     1.upto(9) do |square_number|
-      fresh_grid[square_number] = Square.new
+      fresh_grid[square_number] = Square.new(INITIAL_MARKER)
     end
     fresh_grid
   end
@@ -17,8 +19,8 @@ class Board
 end
 
 class Square
-  def initialize
-    @state = ' '
+  def initialize(initial_marker)
+    @state = initial_marker
   end
 
   def to_s
