@@ -18,7 +18,7 @@ end
 
 class Square
   def initialize
-    @state = ''
+    @state = ' '
   end
 
   def to_s
@@ -68,7 +68,7 @@ class TTTGame
   end
 
   def display_board
-    %(
+    puts %(
   (1)|(2)|(3)
    #{board[1]} | #{board[2]} | #{board[3]}
      |   |
