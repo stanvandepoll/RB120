@@ -84,7 +84,7 @@ class TTTGame
   end
 
   def play
-    system 'clear'
+    clear_screen
     display_welcome_message
 
     loop do
@@ -104,10 +104,14 @@ class TTTGame
       break unless play_again?
 
       board.reset
-      system 'clear'
+      clear_screen
       puts "Let's play again!"
     end
     display_goodbye_message
+  end
+
+  def clear_screen
+    system 'clear'
   end
 
   def play_again?
@@ -158,7 +162,7 @@ class TTTGame
   end
 
   def display_board(clear_system = true)
-    system 'clear' if clear_system
+    clear_screen() if clear_system
     puts "You're a #{human.marker}. Computer is a #{computer.marker}."
     puts %(
   (1)|(2)|(3)
