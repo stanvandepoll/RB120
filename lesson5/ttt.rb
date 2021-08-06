@@ -6,6 +6,10 @@ class Board
   WINNING_LINES = HORIZONTAL_LINES + VERTICAL_LINES + DIAGONAL_LINES
 
   def initialize
+    reset
+  end
+
+  def reset
     @grid = initialize_grid
   end
 
@@ -80,18 +84,44 @@ class TTTGame
   end
 
   def play
+    system 'clear'
     display_welcome_message
-    loop do
-      display_board
-      human_moves
-      break if someone_won? || board_full?
 
-      computer_moves
-      break if someone_won? || board_full?
+    loop do
+      display_board(false)
+
+      loop do
+        human_moves
+        break if someone_won? || board_full?
+
+        computer_moves
+        break if someone_won? || board_full?
+
+        display_board
+      end
+      display_board
+      display_result
+      break unless play_again?
+
+      board.reset
+      system 'clear'
+      puts "Let's play again!"
     end
-    display_board
-    display_result
     display_goodbye_message
+  end
+
+  def play_again?
+    answer = nil
+    puts "Would you like to play again? (y/n)"
+
+    loop do
+      answer = gets.chomp.downcase
+      break if %w(y n).include?(answer)
+
+      puts "Sorry, you must enter y or n."
+    end
+
+    answer == 'y'
   end
 
   def board_full?
@@ -127,8 +157,8 @@ class TTTGame
     puts "Thanks for playing Tic Tac Toe! Goodbye!"
   end
 
-  def display_board
-    system 'clear'
+  def display_board(clear_system = true)
+    system 'clear' if clear_system
     puts "You're a #{human.marker}. Computer is a #{computer.marker}."
     puts %(
   (1)|(2)|(3)
