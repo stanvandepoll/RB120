@@ -1,5 +1,9 @@
 class Board
   INITIAL_MARKER = ' '
+  HORIZONTAL_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+  VERTICAL_LINES = [[1, 4, 7], [2, 5, 8], [3, 6, 9]]
+  DIAGONAL_LINES = [[1, 5, 9], [3, 5, 7]]
+  WINNING_LINES = HORIZONTAL_LINES + VERTICAL_LINES + DIAGONAL_LINES
 
   def initialize
     @grid = initialize_grid
@@ -23,6 +27,24 @@ class Board
 
   def unmarked_keys
     @grid.keys.select { |key| @grid[key].marker == INITIAL_MARKER }
+  end
+
+  def full?
+    unmarked_keys.empty?
+  end
+
+  def someone_won?(players)
+    !!detect_winner(players)
+  end
+
+  def detect_winner(players)
+    players.each do |player|
+      player_marker = player.marker
+      WINNING_LINES.each do |line|
+        return player if @grid.values_at(*line).all? { |square| square.marker == player_marker }
+      end
+    end
+    nil
   end
 end
 
@@ -61,14 +83,21 @@ class TTTGame
     loop do
       display_board
       human_moves
-      # break if someone_won? || board_full?
+      break if someone_won? || board_full?
 
       computer_moves
-      # break if someone_won? || board_full?
-      break
+      break if someone_won? || board_full?
     end
     display_board
     display_goodbye_message
+  end
+
+  def board_full?
+    @board.full?
+  end
+
+  def someone_won?
+    @board.someone_won?([human, computer])
   end
 
   def human_moves
@@ -97,6 +126,8 @@ class TTTGame
   end
 
   def display_board
+    system 'clear'
+    puts "You're a #{human.marker}. Computer is a #{computer.marker}."
     puts %(
   (1)|(2)|(3)
    #{board[1]} | #{board[2]} | #{board[3]}
