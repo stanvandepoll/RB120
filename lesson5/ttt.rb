@@ -41,7 +41,8 @@ class Board
     players.each do |player|
       player_marker = player.marker
       WINNING_LINES.each do |line|
-        return player if @grid.values_at(*line).all? { |square| square.marker == player_marker }
+        line_markings = @grid.values_at(*line).map(&:marker)
+        return player if line_markings.count(player_marker) == 3
       end
     end
     nil
