@@ -29,6 +29,22 @@ class Board
     @grid[integer].marker = marker
   end
 
+  def draw
+    %(
+      (1)|(2)|(3)
+       #{self[1]} | #{self[2]} | #{self[3]}
+         |   |
+      ---+---+---
+      (4)|(5)|(6)
+       #{self[4]} | #{self[5]} | #{self[6]}
+         |   |
+      ---+---+---
+      (7)|(8)|(9)
+       #{self[7]} | #{self[8]} | #{self[9]}
+         |   |
+    )
+  end
+
   def unmarked_keys
     @grid.keys.select { |key| @grid[key].marker == INITIAL_MARKER }
   end
@@ -88,7 +104,7 @@ class TTTGame
     display_welcome_message
 
     loop do
-      display_board(false)
+      display_board
 
       loop do
         human_moves
@@ -97,21 +113,34 @@ class TTTGame
         computer_moves
         break if someone_won? || board_full?
 
-        display_board
+        clear_screen_and_display_board
       end
-      display_board
+      clear_screen_and_display_board
       display_result
       break unless play_again?
 
-      board.reset
-      clear_screen
-      puts "Let's play again!"
+      reset
+      display_play_again_message
     end
     display_goodbye_message
   end
 
+  def clear_screen_and_display_board
+    clear_screen
+    display_board
+  end
+
   def clear_screen
     system 'clear'
+  end
+
+  def reset
+    board.reset
+    clear_screen
+  end
+
+  def display_play_again_message
+    puts "Let's play again!"
   end
 
   def play_again?
@@ -161,22 +190,11 @@ class TTTGame
     puts "Thanks for playing Tic Tac Toe! Goodbye!"
   end
 
-  def display_board(clear_system = true)
-    clear_screen() if clear_system
+  def display_board
     puts "You're a #{human.marker}. Computer is a #{computer.marker}."
-    puts %(
-  (1)|(2)|(3)
-   #{board[1]} | #{board[2]} | #{board[3]}
-     |   |
-  ---+---+---
-  (4)|(5)|(6)
-   #{board[4]} | #{board[5]} | #{board[6]}
-     |   |
-  ---+---+---
-  (7)|(8)|(9)
-   #{board[7]} | #{board[8]} | #{board[9]}
-     |   |
-  )
+    puts ''
+    puts board.draw
+    puts ''
   end
 
   def display_result
