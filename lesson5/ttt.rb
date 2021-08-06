@@ -89,6 +89,7 @@ class TTTGame
       break if someone_won? || board_full?
     end
     display_board
+    display_result
     display_goodbye_message
   end
 
@@ -141,6 +142,17 @@ class TTTGame
    #{board[7]} | #{board[8]} | #{board[9]}
      |   |
   )
+  end
+
+  def display_result
+    case board.detect_winner([human, computer])
+    when human
+      puts "You won!"
+    when computer
+      puts "Computer won!"
+    else
+      puts "It's a tie!"
+    end
   end
 end
 
