@@ -14,10 +14,10 @@ class Board
   end
 
   def [](integer)
-    @grid[integer]
+    @grid[integer].marker
   end
 
-  def set_square_at(integer, marker)
+  def []=(integer, marker)
     @grid[integer].marker = marker
   end
 end
@@ -27,10 +27,6 @@ class Square
 
   def initialize(initial_marker)
     @marker = initial_marker
-  end
-
-  def to_s
-    @marker
   end
 end
 
@@ -77,7 +73,7 @@ class TTTGame
       puts "Sorry, that's not a valid choice."
     end
 
-    board.set_square_at(square, human.marker)
+    board[square] = human.marker
   end
 
   def display_welcome_message
