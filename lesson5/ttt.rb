@@ -54,15 +54,15 @@ class Board
   end
 
   def someone_won?(players)
-    !!detect_winner(players)
+    !!winning_marker
   end
 
-  def detect_winner(players)
-    players.each do |player|
-      player_marker = player.marker
+  def winning_marker
+    markers = @grid.values.map(&:marker).uniq - [INITIAL_MARKER]
+    markers.each do |marker|
       WINNING_LINES.each do |line|
         line_markings = @grid.values_at(*line).map(&:marker)
-        return player if line_markings.count(player_marker) == 3
+        return marker if line_markings.count(marker) == 3
       end
     end
     nil
@@ -90,6 +90,7 @@ end
 class TTTGame
   HUMAN_MARKER = 'X'
   COMPUTER_MARKER = 'O'
+  FIRST_TO_MOVE = :human
 
   attr_reader :board, :human, :computer
 
@@ -97,6 +98,7 @@ class TTTGame
     @board = Board.new
     @human = Player.new('Stan', HUMAN_MARKER, :player)
     @computer = Player.new('Steve-O', COMPUTER_MARKER)
+    @current_player = self.send(FIRST_TO_MOVE)
   end
 
   def play
@@ -107,13 +109,11 @@ class TTTGame
       display_board
 
       loop do
-        human_moves
+        current_player_moves
+        switch_players
         break if someone_won? || board_full?
-
-        computer_moves
-        break if someone_won? || board_full?
-
-        clear_screen_and_display_board
+        
+        clear_screen_and_display_board if human_turn?
       end
       clear_screen_and_display_board
       display_result
@@ -123,6 +123,22 @@ class TTTGame
       display_play_again_message
     end
     display_goodbye_message
+  end
+
+  def current_player_moves
+    if human_turn?
+      human_moves
+    else
+      computer_moves
+    end
+  end
+
+  def switch_players
+    @current_player = (human_turn? ? @computer : @human)
+  end
+
+  def human_turn?
+    @current_player == @human
   end
 
   def clear_screen_and_display_board
@@ -136,6 +152,7 @@ class TTTGame
 
   def reset
     board.reset
+    @current_player = self.send(FIRST_TO_MOVE)
     clear_screen
   end
 
@@ -198,10 +215,10 @@ class TTTGame
   end
 
   def display_result
-    case board.detect_winner([human, computer])
-    when human
+    case board.winning_marker
+    when human.marker
       puts "You won!"
-    when computer
+    when computer.marker
       puts "Computer won!"
     else
       puts "It's a tie!"
