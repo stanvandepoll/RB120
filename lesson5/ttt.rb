@@ -102,17 +102,17 @@ class TTTGame
   def play
     clear_screen
     display_welcome_message
+    main_game
+    display_goodbye_message
+  end
 
+  private
+
+  def main_game
     loop do
       display_board
 
-      loop do
-        current_player_moves
-        switch_players
-        break if someone_won? || board_full?
-
-        clear_screen_and_display_board if human_turn?
-      end
+      players_move_till_result
       clear_screen_and_display_board
       display_result
       break unless play_again?
@@ -120,10 +120,17 @@ class TTTGame
       reset
       display_play_again_message
     end
-    display_goodbye_message
   end
 
-  private
+  def players_move_till_result
+    loop do
+      current_player_moves
+      switch_players
+      break if someone_won? || board_full?
+
+      clear_screen_and_display_board if human_turn?
+    end
+  end
 
   def current_player_moves
     if human_turn?
