@@ -53,7 +53,7 @@ class Board
     unmarked_keys.empty?
   end
 
-  def someone_won?(players)
+  def someone_won?
     !!winning_marker
   end
 
@@ -96,7 +96,7 @@ class TTTGame
     @board = Board.new
     @human = Player.new(HUMAN_MARKER)
     @computer = Player.new(COMPUTER_MARKER)
-    @current_player = self.send(FIRST_TO_MOVE)
+    @current_player = send(FIRST_TO_MOVE)
   end
 
   def play
@@ -152,7 +152,7 @@ class TTTGame
 
   def reset
     board.reset
-    @current_player = self.send(FIRST_TO_MOVE)
+    @current_player = send(FIRST_TO_MOVE)
     clear_screen
   end
 
@@ -179,7 +179,7 @@ class TTTGame
   end
 
   def someone_won?
-    @board.someone_won?([human, computer])
+    @board.someone_won?
   end
 
   def human_moves
