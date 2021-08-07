@@ -80,9 +80,7 @@ end
 class Player
   attr_reader :marker
 
-  def initialize(name, marker, type = :computer)
-    @name = name
-    @type = type
+  def initialize(marker)
     @marker = marker
   end
 end
@@ -96,8 +94,8 @@ class TTTGame
 
   def initialize
     @board = Board.new
-    @human = Player.new('Stan', HUMAN_MARKER, :player)
-    @computer = Player.new('Steve-O', COMPUTER_MARKER)
+    @human = Player.new(HUMAN_MARKER)
+    @computer = Player.new(COMPUTER_MARKER)
     @current_player = self.send(FIRST_TO_MOVE)
   end
 
