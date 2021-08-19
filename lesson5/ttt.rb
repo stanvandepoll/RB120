@@ -1,5 +1,9 @@
+require 'pry'
+
 class Board
   INITIAL_MARKER = ' '
+  MIDDLE_SQUARE = 5
+  LINE_LENGTH = 3
   HORIZONTAL_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
   VERTICAL_LINES = [[1, 4, 7], [2, 5, 8], [3, 6, 9]]
   DIAGONAL_LINES = [[1, 5, 9], [3, 5, 7]]
@@ -27,6 +31,10 @@ class Board
 
   def []=(integer, marker)
     @grid[integer].marker = marker
+  end
+
+  def values_at(*square_numbers)
+    square_numbers.map { |square_number| self[square_number] }
   end
 
   def draw
@@ -67,6 +75,14 @@ class Board
     end
     nil
   end
+
+  def middle_square
+    MIDDLE_SQUARE
+  end
+
+  def line_length
+    LINE_LENGTH
+  end
 end
 
 class Square
@@ -98,13 +114,12 @@ class TTTGame
     @computer = Player.new(COMPUTER_MARKER)
     @current_player = send(FIRST_TO_MOVE)
     @score = { @human => 0, @computer => 0 }
-    @max_score = nil
+    @max_score = 5
   end
 
   def play
     clear_screen
     display_welcome_message
-    define_game_settings
     outer_game_loop
     display_goodbye_message
   end
@@ -135,10 +150,6 @@ class TTTGame
       reset_main_game
       display_next_game_message
     end
-  end
-
-  def define_game_settings
-    @max_score = 5
   end
 
   def players_move_till_result
@@ -252,7 +263,46 @@ class TTTGame
   end
 
   def computer_moves
-    board[board.unmarked_keys.sample] = computer.marker
+    return if perform_line_completion_move!(computer.marker)
+    return if perform_line_completion_move!(human.marker)
+
+    if board.unmarked_keys.include?(board.middle_square)
+      board[board.middle_square] = computer.marker
+    else
+      board[board.unmarked_keys.sample] = computer.marker
+    end
+  end
+
+  def perform_line_completion_move!(marker)
+    at_risk_square = square_at_risk(marker)
+    if at_risk_square
+      board[at_risk_square] = computer.marker
+      true
+    else
+      false
+    end
+  end
+
+  def square_at_risk(marker)
+    square_number = nil
+
+    board.class::WINNING_LINES.each do |line|
+      square_number = at_risk_square_in(
+        line: line, marker: marker
+      )
+      break if square_number
+    end
+
+    square_number
+  end
+
+  def at_risk_square_in(line:, marker:)
+    line_values = board.values_at(*line)
+    if line_values.count(marker) == (board.line_length - 1) &&
+       line_values.count(board.class::INITIAL_MARKER) == 1
+      at_risk_line_index = line_values.index(board.class::INITIAL_MARKER)
+      line[at_risk_line_index]
+    end
   end
 
   def display_welcome_message
