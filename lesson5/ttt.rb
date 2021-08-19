@@ -104,7 +104,6 @@ end
 class TTTGame
   HUMAN_MARKER = 'X'
   COMPUTER_MARKER = 'O'
-  FIRST_TO_MOVE = :human
 
   attr_reader :board, :human, :computer
 
@@ -112,9 +111,10 @@ class TTTGame
     @board = Board.new
     @human = Player.new(HUMAN_MARKER)
     @computer = Player.new(COMPUTER_MARKER)
-    @current_player = send(FIRST_TO_MOVE)
+    @starter_setting = input_starter_setting
+    @current_player = pick_starter
     @score = { @human => 0, @computer => 0 }
-    @max_score = 5
+    @max_score = 2
   end
 
   def play
@@ -162,6 +162,38 @@ class TTTGame
     end
   end
 
+  def input_starter_setting
+    puts 'Who may start? h = human, c = computer, a = alternate, r = random'
+
+    starter_choice = ''
+    loop do
+      starter_choice = gets.chomp.downcase.to_sym
+      break if %i(h c a r).include?(starter_choice)
+
+      puts 'Invalid choice, please choose again'
+    end
+
+    starter_translation = { h: :human, c: :computer, a: :alternate, r: :random }
+    starter_translation[starter_choice]
+  end
+
+  def pick_starter
+    starter_symbol = case @starter_setting
+      when :human then :human
+      when :computer then :computer
+      when :alternate
+        if @current_player
+          @current_player == @human ? :computer : :human
+        else
+          %i(human computer).sample
+        end
+      when :random
+        %i(human computer).sample
+      end
+
+    send(starter_symbol)
+  end
+
   def max_score_reached?
     @score.values.max == @max_score
   end
@@ -202,7 +234,7 @@ class TTTGame
 
   def reset_main_game
     board.reset
-    @current_player = send(FIRST_TO_MOVE)
+    @current_player = pick_starter
     clear_screen
   end
 
