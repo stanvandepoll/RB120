@@ -190,7 +190,7 @@ class TTTGame
   end
 
   def human_moves
-    puts "Choose a square number (#{board.unmarked_keys.join(', ')})."
+    puts "Choose a square number (#{join_or(board.unmarked_keys)})."
     square = nil
     loop do
       square = gets.chomp.to_i
@@ -200,6 +200,15 @@ class TTTGame
     end
 
     board[square] = human.marker
+  end
+
+  def join_or(array, delimiter=', ', end_word='or')
+    case array.size
+    when 0 then ''
+    when 1 then array.first
+    when 2 then array.join(" #{end_word} ")
+    else array[0..-2].join(delimiter) + "#{delimiter}#{end_word} #{array.last}"
+    end
   end
 
   def computer_moves
