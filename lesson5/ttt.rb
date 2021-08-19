@@ -218,7 +218,7 @@ class TTTGame
   end
 
   def show_outer_loop_result
-    puts "Final score is you: #{@score[human]}, computer: #{@score[computer]}."
+    puts "Final score is #{human.name}: #{@score[human]}, #{computer.name}: #{@score[computer]}."
   end
 
   def current_player_moves
@@ -365,11 +365,22 @@ class TTTGame
   end
 
   def display_board
-    puts "You're a #{human.marker}. Computer is a #{computer.marker}."
-    puts "Score is you: #{@score[human]}, computer: #{@score[computer]}"
+    puts rules_and_score_header 
     puts ''
     puts board.draw
     puts ''
+  end
+
+  def rules_and_score_header 
+    %(
+    -------------------
+        TIC TAC TOE
+    -------------------
+    #{human.name} marks with a #{human.marker}, #{computer.name} is #{computer.marker}.
+    Win #{@max_score} rounds to win the whole game.
+    Rounds won; you: #{@score[human]}, #{computer.name}: #{@score[computer]}
+    -------------------
+    )
   end
 
   def display_result
