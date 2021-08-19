@@ -97,16 +97,30 @@ class TTTGame
     @human = Player.new(HUMAN_MARKER)
     @computer = Player.new(COMPUTER_MARKER)
     @current_player = send(FIRST_TO_MOVE)
+    @score = { @human => 0, @computer => 0 }
+    @max_score = nil
   end
 
   def play
     clear_screen
     display_welcome_message
-    main_game
+    define_game_settings
+    outer_game_loop
     display_goodbye_message
   end
 
   private
+
+  def outer_game_loop
+    loop do
+      main_game
+      show_outer_loop_result
+      break unless play_again?
+
+      reset_outer_loop
+      display_play_again_message
+    end
+  end
 
   def main_game
     loop do
@@ -115,11 +129,16 @@ class TTTGame
       players_move_till_result
       clear_screen_and_display_board
       display_result
-      break unless play_again?
+      update_score
+      break if max_score_reached?
 
-      reset
-      display_play_again_message
+      reset_main_game
+      display_next_game_message
     end
+  end
+
+  def define_game_settings
+    @max_score = 5
   end
 
   def players_move_till_result
@@ -130,6 +149,14 @@ class TTTGame
 
       clear_screen_and_display_board if human_turn?
     end
+  end
+
+  def max_score_reached?
+    @score.values.max == @max_score
+  end
+
+  def show_outer_loop_result
+    puts "Final score is you: #{@score[human]}, computer: #{@score[computer]}."
   end
 
   def current_player_moves
@@ -157,14 +184,27 @@ class TTTGame
     system 'clear'
   end
 
-  def reset
+  def reset_outer_loop
+    reset_main_game
+    reset_score
+  end
+
+  def reset_main_game
     board.reset
     @current_player = send(FIRST_TO_MOVE)
     clear_screen
   end
 
+  def reset_score
+    @score = { @human => 0, @computer => 0 }
+  end
+
   def display_play_again_message
     puts "Let's play again!"
+  end
+
+  def display_next_game_message
+    puts "On to the next game."
   end
 
   def play_again?
@@ -225,6 +265,7 @@ class TTTGame
 
   def display_board
     puts "You're a #{human.marker}. Computer is a #{computer.marker}."
+    puts "Score is you: #{@score[human]}, computer: #{@score[computer]}"
     puts ''
     puts board.draw
     puts ''
@@ -238,6 +279,15 @@ class TTTGame
       puts "Computer won!"
     else
       puts "It's a tie!"
+    end
+  end
+
+  def update_score
+    case board.winning_marker
+    when human.marker
+      @score[human] += 1
+    when computer.marker
+      @score[computer] += 1
     end
   end
 end
