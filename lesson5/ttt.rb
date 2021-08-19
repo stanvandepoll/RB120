@@ -94,23 +94,23 @@ class Square
 end
 
 class Player
-  attr_reader :marker
+  attr_reader :marker, :name
 
-  def initialize(marker)
+  def initialize(marker, name)
     @marker = marker
+    @name = name
   end
 end
 
 class TTTGame
-  HUMAN_MARKER = 'X'
   COMPUTER_MARKER = 'O'
 
   attr_reader :board, :human, :computer
 
   def initialize
     @board = Board.new
-    @human = Player.new(HUMAN_MARKER)
-    @computer = Player.new(COMPUTER_MARKER)
+    @human = Player.new(input_marker, input_name)
+    @computer = Player.new(COMPUTER_MARKER, 'Nemesis')
     @starter_setting = input_starter_setting
     @current_player = pick_starter
     @score = { @human => 0, @computer => 0 }
@@ -175,6 +175,25 @@ class TTTGame
 
     starter_translation = { h: :human, c: :computer, a: :alternate, r: :random }
     starter_translation[starter_choice]
+  end
+
+  def input_marker
+    puts "Enter your one-character marker"
+    marker = nil
+    loop do
+      marker = gets.chomp
+      break if marker.size == 1 && marker != COMPUTER_MARKER && marker != Board::INITIAL_MARKER
+
+      puts 'Invalid choice, please choose again'
+    end
+
+    marker
+  end
+
+  def input_name
+    puts "Enter your name"
+
+    gets.chomp
   end
 
   def pick_starter
