@@ -111,6 +111,7 @@ class TTTGame
     @board = Board.new
     @human = Player.new(input_marker, input_name)
     @computer = Player.new(COMPUTER_MARKER, 'Nemesis')
+    @previous_starter = nil
     @starter_setting = input_starter_setting
     @current_player = pick_starter
     @score = { @human => 0, @computer => 0 }
@@ -155,9 +156,9 @@ class TTTGame
   def players_move_till_result
     loop do
       current_player_moves
-      switch_players
       break if someone_won? || board_full?
 
+      switch_players
       clear_screen_and_display_board if human_turn?
     end
   end
@@ -201,8 +202,8 @@ class TTTGame
       when :human then :human
       when :computer then :computer
       when :alternate
-        if @current_player
-          @current_player == @human ? :computer : :human
+        if @previous_starter
+          @previous_starter == :human ? :computer : :human
         else
           %i(human computer).sample
         end
@@ -210,6 +211,7 @@ class TTTGame
         %i(human computer).sample
       end
 
+    @previous_starter = starter_symbol
     send(starter_symbol)
   end
 
