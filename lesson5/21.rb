@@ -31,9 +31,8 @@ module Hand
   private
 
   def raw_score(card)
-    case
-    when card.ace? then 11
-    when card.character? then 10
+    if card.ace? then 11
+    elsif card.character? then 10
     else card.face.to_i
     end
   end
@@ -85,7 +84,7 @@ class Dealer < Participant
 
   def show_flop
     puts "---- #{name}'s Hand ----"
-    puts "#{cards.first}"
+    puts cards.first
     puts " ?? "
     puts ""
   end
@@ -108,8 +107,12 @@ class Deck
 end
 
 class Card
-  SUITS_DESCRIPTORS = { 'H' => 'Hearts', 'D' => 'Diamonds', 'S' => 'Spades', 'C' => 'Clubs' }
-  FACES_DESCRIPTORS = { 'J' => 'Jack', 'Q' => 'Queen', 'K' => 'King', 'A' => 'Ace' }
+  SUITS_DESCRIPTORS = {
+    'H' => 'Hearts', 'D' => 'Diamonds', 'S' => 'Spades', 'C' => 'Clubs'
+  }
+  FACES_DESCRIPTORS = {
+    'J' => 'Jack', 'Q' => 'Queen', 'K' => 'King', 'A' => 'Ace'
+  }
 
   def initialize(suit, face)
     @suit = suit
@@ -180,24 +183,31 @@ class TwentyOne
     puts "#{player.name}'s turn..."
 
     loop do
-      puts "Would you like to (h)it or (s)tay?"
-      answer = nil
-      loop do
-        answer = gets.chomp.downcase
-        break if ['h', 's'].include?(answer)
-        puts "Sorry, must enter 'h' or 's'."
-      end
-
-      if answer == 's'
+      if request_hit_or_stay == 's'
         puts "#{player.name} stays!"
         break
       else
-        player.add_card(deck.deal_one)
-        puts "#{player.name} hits!"
-        player.show_hand
+        hit_player
         break if player.busted?
       end
     end
+  end
+
+  def request_hit_or_stay
+    puts "Would you like to (h)it or (s)tay?"
+    answer = nil
+    loop do
+      answer = gets.chomp.downcase
+      break if ['h', 's'].include?(answer)
+      puts "Sorry, must enter 'h' or 's'."
+    end
+    answer
+  end
+
+  def hit_player
+    player.add_card(deck.deal_one)
+    puts "#{player.name} hits!"
+    player.show_hand
   end
 
   def dealer_turn
@@ -205,17 +215,26 @@ class TwentyOne
 
     loop do
       sleep 2
-      if dealer.total >= 17 && !dealer.busted?
-        puts "#{dealer.name} stays!"
-        break
-      elsif dealer.busted?
-        break
-      else
-        puts "#{dealer.name} hits!"
-        dealer.add_card(deck.deal_one)
-        dealer.show_hand
-      end
+      break if dealer_subturn
     end
+  end
+
+  def dealer_subturn
+    if dealer.busted?
+      true
+    elsif dealer.total >= 17
+      puts "#{dealer.name} stays!"
+      true
+    else
+      hit_dealer
+      false
+    end
+  end
+
+  def hit_dealer
+    puts "#{dealer.name} hits!"
+    dealer.add_card(deck.deal_one)
+    dealer.show_hand
   end
 
   def show_busted
@@ -255,39 +274,43 @@ class TwentyOne
 
   def start
     loop do
-      system 'clear'
-      deal_cards
-      show_flop
+      set_up_game
 
-      player_turn
-      if player.busted?
-        show_busted
-        if play_again?
-          reset
-          next
-        else
-          break
-        end
-      end
+      continuation = perform_game_turns
+      continuation && (continuation == :break ? break : next)
 
-      dealer_turn
-      if dealer.busted?
-        show_busted
-        if play_again?
-          reset
-          next
-        else
-          break
-        end
-      end
-
-      # both stayed
       show_cards
       show_result
       play_again? ? reset : break
     end
 
     puts "Thank you for playing Twenty-One. Goodbye!"
+  end
+
+  def set_up_game
+    system 'clear'
+    deal_cards
+    show_flop
+  end
+
+  def perform_game_turns
+    round_result = nil
+    [:player, :dealer].each do |participant|
+      round_result = participant_round(participant)
+      break if round_result
+    end
+    round_result
+  end
+
+  def participant_round(symbol)
+    send("#{participant}_turn")
+    if send(participant).busted?
+      show_busted
+      return :break unless play_again?
+      
+      reset
+      :next
+    end
   end
 end
 
