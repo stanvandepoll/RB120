@@ -302,18 +302,17 @@ class TwentyOne
     round_result
   end
 
-  def participant_round(symbol)
-    send("#{participant}_turn")
-    if send(participant).busted?
-      show_busted
-      return :break unless play_again?
-      
-      reset
-      :next
-    end
+  def participant_round(participant_symbol)
+    send("#{participant_symbol}_turn")
+    return unless send(participant_symbol).busted?
+
+    show_busted
+    return :break unless play_again?
+
+    reset
+    :next
   end
 end
 
 game = TwentyOne.new
 game.start
-
