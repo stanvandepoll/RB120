@@ -46,33 +46,46 @@ module Hand
   end
 end
 
-class Player
+class Participant
   include Hand
+  attr_accessor :name, :cards
 
   def initialize
-    # what would the "data" or "states" of a Player object entail?
-    # maybe cards? a name?
-  end
-
-  def hit
-  end
-
-  def stay
-  end
-
-  def busted?
-  end
-
-  def total
-    # definitely looks like we need to know about "cards" to produce some total
+    @cards = []
+    set_name
   end
 end
 
-class Dealer
-  include Hand
+class Player < Participant
+  def set_name
+    name = ''
+    loop do
+      puts "What's your name?"
+      name = gets.chomp
+      break unless name.empty?
+      
+      puts "Sorry, must enter a value."
+    end
+    self.name = name
+  end
 
-  def initialize
-    # seems like very similar to Player... do we even need this?
+  def show_flop
+    show_hand
+  end
+end
+
+class Dealer < Participant
+  ROBOTS = ['R2D2', 'Hal', 'Chappie', 'Sonny', 'Number 5']
+
+  def set_name
+    self.name = ROBOTS.sample
+  end
+
+  def show_flop
+    puts "---- #{name}'s Hand ----"
+    puts "#{cards.first}"
+    puts " ?? "
+    puts ""
   end
 end
 
