@@ -1,14 +1,48 @@
 module Hand
-  def hit
+  MAX_GAME_SCORE = 21
+
+  def show_hand
+    puts "---- #{name}'s Hand ----"
+    cards.each do |card|
+      puts "=> #{card}"
+    end
+    puts "=> Total: #{total}"
+    puts ""
   end
 
-  def stay
+  def total(cards)
+    raw_sum = cards.sum do |card|
+      raw_score(card)
+    end
+
+    total_corrected_for_aces(raw_sum, values)
+  end
+
+  def add_card(new_card)
+    cards << new_card
   end
 
   def busted?
+    total > MAX_GAME_SCORE
   end
 
-  def total
+  private
+
+  def raw_score(card)
+    case card
+    when card.ace? then 11
+    when card.character? then 10
+    else card.face.to_i
+    end
+  end
+
+  def total_corrected_for_aces(raw_sum, cards)
+    sum = raw_sum
+    cards.select(&:ace?).count.times do
+      sum -= 10 if sum > MAX_GAME_SCORE
+    end
+
+    sum
   end
 end
 
@@ -81,6 +115,10 @@ class Card
 
   def ace?
     face == 'Ace'
+  end
+
+  def character?
+    king? || queen? || jack?
   end
 
   def king?
