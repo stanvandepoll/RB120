@@ -1,19 +1,33 @@
 require 'pry'
 
+class MinilangError < StandardError; end
+
 class Minilang
+  ACTIONS = %w(PUSH ADD SUB MULT DIV MOD POP PRINT)
+
   def initialize(command_string)
     @commands = command_string.split
-    @register = 0
-    @stack = []
   end
 
   def eval
+    @register = 0
+    @stack = []
     @commands.each do |command|
-      if command.to_i.to_s == command
-        self.register = command.to_i
-      else
-        send(command.downcase)
-      end
+      eval_command(command)
+    end
+  rescue MinilangError => error
+    puts error.message
+  end
+
+  private
+
+  def eval_command(command)
+    if ACTIONS.include?(command)
+      send(command.downcase)
+    elsif command.to_i.to_s == command
+      self.register = command.to_i
+    else
+      raise MinilangError, "Invalid token: #{command}"
     end
   end
 
@@ -22,27 +36,33 @@ class Minilang
   end
 
   def add
-    @register += @stack.pop
+    @register += pop_stack
   end
 
   def sub
-    @register -= @stack.pop
+    @register -= pop_stack
   end
 
   def mult
-    @register *= @stack.pop
+    @register *= pop_stack
   end
 
   def div
-    @register /= @stack.pop
+    @register /= pop_stack
   end
 
   def mod
-    @register %= @stack.pop
+    @register %= pop_stack
   end
 
   def pop
-    @register = @stack.pop
+    @register = pop_stack
+  end
+
+  def pop_stack
+    raise MinilangError, 'Empty stack!' if @stack.empty?
+
+    @stack.pop
   end
 
   def print
@@ -64,3 +84,25 @@ Minilang.new('5 PRINT PUSH 3 PRINT ADD PRINT').eval
 # 5
 # 3
 # 8
+
+Minilang.new('5 PUSH 10 PRINT POP PRINT').eval
+# 10
+# 5
+
+Minilang.new('5 PUSH POP POP PRINT').eval
+# Empty stack!
+
+Minilang.new('3 PUSH PUSH 7 DIV MULT PRINT ').eval
+# 6
+
+Minilang.new('4 PUSH PUSH 7 MOD MULT PRINT ').eval
+# 12
+
+Minilang.new('-3 PUSH 5 XSUB PRINT').eval
+# Invalid token: XSUB
+
+Minilang.new('-3 PUSH 5 SUB PRINT').eval
+# 8
+
+Minilang.new('6 PUSH').eval
+# (nothing printed; no PRINT commands)
