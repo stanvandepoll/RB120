@@ -1,25 +1,47 @@
 require 'pry'
 
 class GuessingGame
-  def initialize
-    @guesses_remaining = 7
-    @number = generate_number_to_guess
+  RESULT_OF_GUESS_MESSAGE = {
+    high:  "Your number is too high.",
+    low:   "Your number is too low.",
+    match: "That's the number!"
+  }.freeze
+  RESULT_OF_GAME_MESSAGE = {
+    win:  "You won!",
+    lose: "You have no more guesses. You lost!"
+  }.freeze
+
+  def initialize(lower_bound, upper_bound)
+    @range = (lower_bound..upper_bound)
+    @max_guesses = Math.log2(upper_bound - lower_bound).to_i + 1
+    @secret_number = nil
   end
 
   def play
-    loop do
-      guessed_number = guess_number
-      guess_result = check_number(guessed_number)
-      display_guess_result(guess_result)
-      break if guess_result.zero?
-      break unless guesses_remaining?
-    end
+    reset
+    game_result = play_game
+    display_game_end_message(game_result)
   end
 
   private
 
-  def generate_number_to_guess
-    (1..100).to_a.sample
+  def reset
+    @guesses_remaining = @max_guesses
+    @secret_number = generate_secret_number
+  end
+
+  def play_game
+    loop do
+      guessed_number = guess_number
+      guess_result = determine_guess_result(guessed_number)
+      display_guess_result(guess_result)
+      break :win if guess_result == :match
+      break :lose unless guesses_remaining?
+    end
+  end
+
+  def generate_secret_number
+    @range.to_a.sample
   end
 
   def guesses_remaining?
@@ -30,7 +52,7 @@ class GuessingGame
     puts "You have #{@guesses_remaining} guesses remaining."
     guessed_number = nil
     loop do
-      puts "Enter a number between 1 and 100:"
+      puts "Enter a number between #{@range.min} and #{@range.max}:"
       guessed_number = gets.chomp
       break if valid_guess?(guessed_number)
 
@@ -42,24 +64,31 @@ class GuessingGame
   end
 
   def valid_guess?(guessed_number)
-    (1..100).cover?(guessed_number.to_i) &&
+    @range.cover?(guessed_number.to_i) &&
       guessed_number.to_i.to_s == guessed_number
   end
 
   def check_number(guessed_number)
-    guessed_number <=> @number
+    guessed_number <=> @secret_number
+  end
+
+  def determine_guess_result(guessed_number)
+    case check_number(guessed_number)
+    when -1 then :low
+    when 1 then :high
+    when 0 then :match
+    end
   end
 
   def display_guess_result(guess_result)
-    result_string =
-      case guess_result
-      when -1 then 'Your guess is too low'
-      when 1 then 'Your guess is too high'
-      when 0 then "That's the number!\n\nYou won!"
-      end
-    puts result_string
+    puts RESULT_OF_GUESS_MESSAGE[guess_result]
+  end
+
+  def display_game_end_message(game_result)
+    puts "", RESULT_OF_GAME_MESSAGE[game_result]
   end
 end
 
-game = GuessingGame.new
+game = GuessingGame.new(501, 1500)
+game.play
 game.play
