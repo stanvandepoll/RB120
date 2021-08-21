@@ -6,13 +6,14 @@ class Minilang
   ACTIONS = %w(PUSH ADD SUB MULT DIV MOD POP PRINT)
 
   def initialize(command_string)
-    @commands = command_string.split
+    @command_string = command_string
   end
 
-  def eval
+  def eval(options= nil)
+    formatted_commands = format(@command_string, options)
     @register = 0
     @stack = []
-    @commands.each do |command|
+    formatted_commands.split.each do |command|
       eval_command(command)
     end
   rescue MinilangError => error
@@ -74,21 +75,6 @@ class Minilang
   end
 end
 
-Minilang.new('PRINT').eval
-# 0
-
-Minilang.new('5 PUSH 3 MULT PRINT').eval
-# 15
-
-Minilang.new('5 PRINT PUSH 3 PRINT ADD PRINT').eval
-# 5
-# 3
-# 8
-
-Minilang.new('5 PUSH 10 PRINT POP PRINT').eval
-# 10
-# 5
-
 Minilang.new('5 PUSH POP POP PRINT').eval
 # Empty stack!
 
@@ -101,8 +87,12 @@ Minilang.new('4 PUSH PUSH 7 MOD MULT PRINT ').eval
 Minilang.new('-3 PUSH 5 XSUB PRINT').eval
 # Invalid token: XSUB
 
-Minilang.new('-3 PUSH 5 SUB PRINT').eval
-# 8
-
-Minilang.new('6 PUSH').eval
-# (nothing printed; no PRINT commands)
+CENTIGRADE_TO_FAHRENHEIT =
+  '5 PUSH %<degrees_c>d PUSH 9 MULT DIV PUSH 32 ADD PRINT'
+minilang = Minilang.new(CENTIGRADE_TO_FAHRENHEIT)
+minilang.eval(degrees_c: 100)
+# 212
+minilang.eval(degrees_c: 0)
+# 32
+minilang.eval(degrees_c: -40)
+# -40
