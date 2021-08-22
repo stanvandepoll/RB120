@@ -18,9 +18,11 @@ class Card
   end
 
   def <=>(other_card)
-    rank_position = CARD_RANK_ORDER.index(rank)
-    other_rank_position = CARD_RANK_ORDER.index(other_card.rank)
-    rank_position <=> other_rank_position
+    rank_index <=> other_card.rank_index
+  end
+
+  def rank_index
+    CARD_RANK_ORDER.index(rank)
   end
 end
 
@@ -96,7 +98,13 @@ class PokerHand
   end
 
   def straight?
-
+    sorted_rank_indices = @hand.sort.map(&:rank_index)
+    0.upto(@hand.size - 2) do |card_index|
+      rank_index_difference =
+        sorted_rank_indices[card_index + 1] - sorted_rank_indices[card_index]
+      return false unless rank_index_difference == 1
+    end
+    true
   end
 
   def three_of_a_kind?
@@ -140,9 +148,9 @@ class PokerHand
   end
 end
 
-# hand = PokerHand.new(Deck.new)
-# hand.print
-# puts hand.evaluate
+hand = PokerHand.new(Deck.new)
+hand.print
+puts hand.evaluate
 
 # Danger danger danger: monkey
 # patching for testing purposes.
@@ -160,14 +168,14 @@ hand = PokerHand.new([
 ])
 puts hand.evaluate == 'Royal flush'
 
-# hand = PokerHand.new([
-#   Card.new(8,       'Clubs'),
-#   Card.new(9,       'Clubs'),
-#   Card.new('Queen', 'Clubs'),
-#   Card.new(10,      'Clubs'),
-#   Card.new('Jack',  'Clubs')
-# ])
-# puts hand.evaluate == 'Straight flush'
+hand = PokerHand.new([
+  Card.new(8,       'Clubs'),
+  Card.new(9,       'Clubs'),
+  Card.new('Queen', 'Clubs'),
+  Card.new(10,      'Clubs'),
+  Card.new('Jack',  'Clubs')
+])
+puts hand.evaluate == 'Straight flush'
 
 hand = PokerHand.new([
   Card.new(3, 'Hearts'),
@@ -196,23 +204,23 @@ hand = PokerHand.new([
 ])
 puts hand.evaluate == 'Flush'
 
-# hand = PokerHand.new([
-#   Card.new(8,      'Clubs'),
-#   Card.new(9,      'Diamonds'),
-#   Card.new(10,     'Clubs'),
-#   Card.new(7,      'Hearts'),
-#   Card.new('Jack', 'Clubs')
-# ])
-# puts hand.evaluate == 'Straight'
+hand = PokerHand.new([
+  Card.new(8,      'Clubs'),
+  Card.new(9,      'Diamonds'),
+  Card.new(10,     'Clubs'),
+  Card.new(7,      'Hearts'),
+  Card.new('Jack', 'Clubs')
+])
+puts hand.evaluate == 'Straight'
 
-# hand = PokerHand.new([
-#   Card.new('Queen', 'Clubs'),
-#   Card.new('King',  'Diamonds'),
-#   Card.new(10,      'Clubs'),
-#   Card.new('Ace',   'Hearts'),
-#   Card.new('Jack',  'Clubs')
-# ])
-# puts hand.evaluate == 'Straight'
+hand = PokerHand.new([
+  Card.new('Queen', 'Clubs'),
+  Card.new('King',  'Diamonds'),
+  Card.new(10,      'Clubs'),
+  Card.new('Ace',   'Hearts'),
+  Card.new('Jack',  'Clubs')
+])
+puts hand.evaluate == 'Straight'
 
 hand = PokerHand.new([
   Card.new(3, 'Hearts'),
