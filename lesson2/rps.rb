@@ -5,7 +5,7 @@ class RPSGame
   def initialize
     @human = Human.new
     @computer = Computer.new
-    @score = { @human => 0, @computer => 0 }
+    reset_score
   end
 
   def play
@@ -15,6 +15,8 @@ class RPSGame
       play_game
       display_game_winner
       break unless play_again?
+
+      reset_score
     end
 
     display_goodbye_message
@@ -25,7 +27,7 @@ class RPSGame
       play_round
       break if max_score_reached?
 
-      system 'clear'
+      clear_screen
     end
   end
 
@@ -37,6 +39,14 @@ class RPSGame
     display_round_winner
     adjust_score
     sleep 1
+  end
+
+  def clear_screen
+    system 'clear'
+  end
+
+  def reset_score
+    @score = { @human => 0, @computer => 0 }
   end
 
   def display_welcome_message
