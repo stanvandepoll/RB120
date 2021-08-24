@@ -40,11 +40,15 @@ class RPSGame
   end
 
   def display_welcome_message
-    puts "Welcome to Rock, Paper, Scissors!"
+    puts "Welcome to #{game_name}!"
   end
 
   def display_goodbye_message
-    puts "Thanks for playing Rock, Paper, Scissors. Good bye!"
+    puts "Thanks for playing #{game_name}. Good bye!"
+  end
+
+  def game_name
+    Move::VALUES.map(&:capitalize).join(', ')
   end
 
   def display_round_winner
@@ -126,7 +130,7 @@ class Human < Player
   def choose
     choice = nil
     loop do
-      puts "Please choose rock, paper, or scissors:"
+      puts "Please choose #{Move::VALUES.join(', ')}."
       choice = gets.chomp
       break if Move::VALUES.include?(choice)
 
@@ -147,26 +151,33 @@ class Computer < Player
 end
 
 class Move
-  VALUES = %w(rock paper scissors)
+  VALUES = %w(rock paper scissors lizard spock)
+  WINNING_COMBINATIONS = {
+    'rock' => ['scissors', 'lizard'],
+    'paper' => ['rock', 'spock'],
+    'scissors' => ['paper', 'lizard'],
+    'lizard' => ['paper', 'spock'],
+    'spock' => ['scissors', 'rock']
+  }
+
+  include Comparable
 
   def initialize(value)
     @value = value
   end
 
   def to_s
-    @value
+    value
   end
 
-  def >(other_move)
-    (rock? && other_move.scissors?) ||
-      (paper? && other_move.rock?) ||
-      (scissors? && other_move.paper?)
+  def <=>(other_move)
+    return 0 if value == other_move.value
+    return 1 if wins_from?(other_move)
+    -1
   end
 
-  def <(other_move)
-    (rock? && other_move.paper?) ||
-      (paper? && other_move.scissors?) ||
-      (scissors? && other_move.rock?)
+  def wins_from?(other_move)
+    WINNING_COMBINATIONS[value].include?(other_move.value)
   end
 
   def rock?
@@ -179,6 +190,10 @@ class Move
 
   def scissors?
     @value == 'scissors'
+  end
+
+  def value
+    @value
   end
 end
 
