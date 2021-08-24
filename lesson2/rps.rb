@@ -141,12 +141,17 @@ class Human < Player
 end
 
 class Computer < Player
+  def initialize
+    @moves = Move.generate_values_collection
+    super
+  end
+
   def set_name
     self.name = ['R2D2', 'Hal', 'Chappie', 'Sonny', 'Number 5'].sample
   end
 
   def choose
-    self.move = Move.new(Move::VALUES.sample)
+    self.move = Move.new(@moves.sample)
   end
 end
 
@@ -166,6 +171,12 @@ class Move
     @value = value
   end
 
+  def self.generate_values_collection
+    VALUES.map do |value|
+      [value] * rand(5)
+    end.flatten
+  end
+
   def to_s
     value
   end
@@ -178,18 +189,6 @@ class Move
 
   def wins_from?(other_move)
     WINNING_COMBINATIONS[value].include?(other_move.value)
-  end
-
-  def rock?
-    @value == 'rock'
-  end
-
-  def paper?
-    @value == 'paper'
-  end
-
-  def scissors?
-    @value == 'scissors'
   end
 
   def value
