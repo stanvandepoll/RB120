@@ -1,23 +1,42 @@
 class RPSGame
+  MAX_SCORE = 10
   attr_accessor :human, :computer
 
   def initialize
     @human = Human.new
     @computer = Computer.new
+    @score = { @human => 0, @computer => 0 }
   end
 
   def play
     display_welcome_message
 
     loop do
-      human.choose
-      computer.choose
-      display_moves
-      display_winner
+      play_game
+      display_game_winner
       break unless play_again?
     end
 
     display_goodbye_message
+  end
+
+  def play_game
+    loop do
+      play_round
+      break if max_score_reached?
+
+      system 'clear'
+    end
+  end
+
+  def play_round
+    display_score
+    human.choose
+    computer.choose
+    display_moves
+    display_round_winner
+    adjust_score
+    sleep 1
   end
 
   def display_welcome_message
@@ -28,7 +47,7 @@ class RPSGame
     puts "Thanks for playing Rock, Paper, Scissors. Good bye!"
   end
 
-  def display_winner
+  def display_round_winner
     if human.move > computer.move
       puts "#{human.name} won!"
     elsif human.move < computer.move
@@ -36,6 +55,31 @@ class RPSGame
     else
       puts "It's a tie!"
     end
+  end
+
+  def display_game_winner
+    winner = @score.key(MAX_SCORE)
+    puts "#{winner.name} won this game!"
+  end
+
+  def adjust_score
+    if human.move > computer.move
+      @score[human] += 1
+    elsif human.move < computer.move
+      @score[computer] += 1
+    end
+  end
+
+  def display_score
+    puts "Current score: "
+    scores_string = @score.map do |player, score|
+      "#{player.name}: #{score}"
+    end.join(', ')
+    puts scores_string
+  end
+
+  def max_score_reached?
+    @score.values.any? { |score| score >= MAX_SCORE }
   end
 
   def display_moves
