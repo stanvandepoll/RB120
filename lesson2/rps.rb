@@ -22,6 +22,8 @@ class RPSGame
     display_goodbye_message
   end
 
+  private
+
   def play_game
     loop do
       play_round
@@ -124,6 +126,20 @@ class Player
 end
 
 class Human < Player
+  def choose
+    choice = nil
+    loop do
+      puts "Please choose #{Move::VALUES.join(', ')}."
+      choice = gets.chomp
+      break if Move::VALUES.include?(choice)
+
+      puts "Sorry, invalid choice."
+    end
+    self.move = Move.new(choice)
+  end
+
+  private
+
   def set_name
     chosen_name = nil
     loop do
@@ -136,18 +152,6 @@ class Human < Player
 
     self.name = chosen_name
   end
-
-  def choose
-    choice = nil
-    loop do
-      puts "Please choose #{Move::VALUES.join(', ')}."
-      choice = gets.chomp
-      break if Move::VALUES.include?(choice)
-
-      puts "Sorry, invalid choice."
-    end
-    self.move = Move.new(choice)
-  end
 end
 
 class Computer < Player
@@ -156,12 +160,14 @@ class Computer < Player
     super
   end
 
-  def set_name
-    self.name = ['R2D2', 'Hal', 'Chappie', 'Sonny', 'Number 5'].sample
-  end
-
   def choose
     self.move = Move.new(@moves.sample)
+  end
+
+  private
+
+  def set_name
+    self.name = ['R2D2', 'Hal', 'Chappie', 'Sonny', 'Number 5'].sample
   end
 end
 
@@ -201,9 +207,9 @@ class Move
     WINNING_COMBINATIONS[value].include?(other_move.value)
   end
 
-  def value
-    @value
-  end
+  protected
+
+  attr_reader :value
 end
 
 RPSGame.new.play
