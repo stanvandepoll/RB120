@@ -20,7 +20,7 @@ class Board
   def initialize_grid
     fresh_grid = {}
     1.upto(9) do |square_number|
-      fresh_grid[square_number] = Square.new(INITIAL_MARKER)
+      fresh_grid[square_number] = Square.new(initial_marker)
     end
     fresh_grid
   end
