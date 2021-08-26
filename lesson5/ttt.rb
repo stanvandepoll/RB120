@@ -54,7 +54,7 @@ class Board
   end
 
   def unmarked_keys
-    @grid.keys.select { |key| @grid[key].marker == INITIAL_MARKER }
+    @grid.keys.select { |key| @grid[key].marker == initial_marker }
   end
 
   def full?
@@ -66,11 +66,11 @@ class Board
   end
 
   def winning_marker
-    markers = @grid.values.map(&:marker).uniq - [INITIAL_MARKER]
+    markers = @grid.values.map(&:marker).uniq - [initial_marker]
     markers.each do |marker|
       WINNING_LINES.each do |line|
         line_markings = @grid.values_at(*line).map(&:marker)
-        return marker if line_markings.count(marker) == 3
+        return marker if line_markings.count(marker) == line_length
       end
     end
     nil
@@ -82,6 +82,10 @@ class Board
 
   def line_length
     LINE_LENGTH
+  end
+
+  def initial_marker
+    INITIAL_MARKER
   end
 end
 
@@ -183,7 +187,7 @@ class TTTGame
     marker = nil
     loop do
       marker = gets.chomp
-      break if marker.size == 1 && marker != COMPUTER_MARKER && marker != Board::INITIAL_MARKER
+      break if marker.size == 1 && marker != COMPUTER_MARKER && marker != board.initial_marker
 
       puts 'Invalid choice, please choose again'
     end
@@ -286,11 +290,11 @@ class TTTGame
   end
 
   def board_full?
-    @board.full?
+    board.full?
   end
 
   def someone_won?
-    @board.someone_won?
+    board.someone_won?
   end
 
   def human_moves
@@ -352,8 +356,8 @@ class TTTGame
   def at_risk_square_in(line:, marker:)
     line_values = board.values_at(*line)
     if line_values.count(marker) == (board.line_length - 1) &&
-       line_values.count(board.class::INITIAL_MARKER) == 1
-      at_risk_line_index = line_values.index(board.class::INITIAL_MARKER)
+       line_values.count(board.initial_marker) == 1
+      at_risk_line_index = line_values.index(board.initial_marker)
       line[at_risk_line_index]
     end
   end
