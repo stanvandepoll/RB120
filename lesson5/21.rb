@@ -58,6 +58,12 @@ class Participant
 end
 
 class Player < Participant
+  def show_flop
+    show_hand
+  end
+
+  private
+
   def set_name
     name = ''
     loop do
@@ -69,24 +75,22 @@ class Player < Participant
     end
     self.name = name
   end
-
-  def show_flop
-    show_hand
-  end
 end
 
 class Dealer < Participant
   ROBOTS = ['R2D2', 'Hal', 'Chappie', 'Sonny', 'Number 5']
-
-  def set_name
-    self.name = ROBOTS.sample
-  end
 
   def show_flop
     puts "---- #{name}'s Hand ----"
     puts cards.first
     puts " ?? "
     puts ""
+  end
+
+  private
+
+  def set_name
+    self.name = ROBOTS.sample
   end
 end
 
@@ -127,16 +131,18 @@ class Card
     FACES_DESCRIPTORS[@face] || @face
   end
 
-  def suit
-    SUITS_DESCRIPTORS[@suit]
-  end
-
   def ace?
     face == 'Ace'
   end
 
   def character?
     king? || queen? || jack?
+  end
+
+  private
+
+  def suit
+    SUITS_DESCRIPTORS[@suit]
   end
 
   def king?
@@ -159,6 +165,49 @@ class TwentyOne
     @deck = Deck.new
     @player = Player.new
     @dealer = Dealer.new
+  end
+
+  def start
+    loop do
+      set_up_game
+
+      continuation = perform_game_turns
+      continuation && (continuation == :break ? break : next)
+
+      show_cards
+      show_result
+      play_again? ? reset : break
+    end
+
+    puts "Thank you for playing Twenty-One. Goodbye!"
+  end
+
+  private
+
+  def set_up_game
+    system 'clear'
+    deal_cards
+    show_flop
+  end
+
+  def perform_game_turns
+    round_result = nil
+    [:player, :dealer].each do |participant|
+      round_result = participant_round(participant)
+      break if round_result
+    end
+    round_result
+  end
+
+  def participant_round(participant_symbol)
+    send("#{participant_symbol}_turn")
+    return unless send(participant_symbol).busted?
+
+    show_busted
+    return :break unless play_again?
+
+    reset
+    :next
   end
 
   def reset
@@ -270,47 +319,6 @@ class TwentyOne
     end
 
     answer == 'y'
-  end
-
-  def start
-    loop do
-      set_up_game
-
-      continuation = perform_game_turns
-      continuation && (continuation == :break ? break : next)
-
-      show_cards
-      show_result
-      play_again? ? reset : break
-    end
-
-    puts "Thank you for playing Twenty-One. Goodbye!"
-  end
-
-  def set_up_game
-    system 'clear'
-    deal_cards
-    show_flop
-  end
-
-  def perform_game_turns
-    round_result = nil
-    [:player, :dealer].each do |participant|
-      round_result = participant_round(participant)
-      break if round_result
-    end
-    round_result
-  end
-
-  def participant_round(participant_symbol)
-    send("#{participant_symbol}_turn")
-    return unless send(participant_symbol).busted?
-
-    show_busted
-    return :break unless play_again?
-
-    reset
-    :next
   end
 end
 
